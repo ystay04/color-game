@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0px;
+            padding: 0px;
+            background-color: bisque;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #container {
+            width: 530px;
+            height: 530px;
+            background-color: gray;
+            border-radius: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 15px;
+            gap: 15px;
+            display: none;
+        }
+
+        #container.act {
+            display: flex;
+        }
+
+        .box {
+            background-color: skyblue;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 36px;
+        }
+
+        .score {
+            position: absolute;
+            top: 0;
+            left: calc(50% - 50px);
+            width: 100px;
+            height: 100px;
+            background-color: orange;
+            border-right: 15px;
+            text-align: center;
+            line-height: 100px;
+            font-size: 72px;
+            display: none;
+        }
+
+        .score.act {
+            display: block;
+        }
+
+        .start-game {
+            margin: auto;
+            background-color: darkgray;
+            padding: 30px 50px;
+            font-size: 72px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+
+        .time {
+            font-size: 60px;
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            color: cadetblue;
+        }
+
+        .start-reset {
+            position: absolute;
+            font-size: 50px;
+            bottom: 100px;
+            left: 740px;
+            background-color: cadetblue;
+            border-radius: 30px;
+            visibility: hidden;
+        }
+
+        .stopTimer {
+            position: absolute;
+            font-size: 50px;
+            bottom: 100px;
+            left: 990px;
+            background-color: cadetblue;
+            border-radius: 30px;
+            visibility: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="start-game" onclick="startGame()">開始遊戲</div>
+    <div class="start-reset" onclick="startReset()">重新開始</div>
+    <div class="stopTimer" onclick="stopTime()">暫停遊戲</div>
+    <div class="score"></div>
+    <div id="container"></div>
+    <div class="time"></div>
+
+
+    <script>
+
+        const container = document.querySelector('#container');
+        const scoreContent = document.querySelector('.score');
+        const startGameBtn = document.querySelector('.start-game');
+        const startResetBtn = document.querySelector('.start-reset');
+        const stopTimerBtn = document.querySelector('.stopTimer');
+        const timeBoard = document.querySelector('.time');
+
+        let score = 0; //分數
+        let time = 60; //時間
+        let level = 1; //等級
+        let colorUP = 0.3; //透明難度
+        let tag = true;
+        let timer;
+
+
+        //點擊開始遊戲進入畫面
+        function startGame() {
+            container.classList.add('act');
+            scoreContent.classList.add('act');
+            startResetBtn.style.visibility = 'visible';
+            stopTimerBtn.style.visibility = 'visible';
+            startGameBtn.style.display = 'none';
+            //開始倒數時間&結算動作
+            var timer = setInterval(function () {
+                time--;
+                timeBoard.innerHTML = time;
+                if (time <= 0) {
+                    clearInterval(timer);
+                    alert('時間到了~');
+                    alert('分數:' + scoreContent.innerHTML);
+                }
+
+            }, 1000);
+        }
+
+        //重新開始
+        function startReset() {
+            time = 60;
+            colorUP = 0.3;
+            score = 0;
+            level = 1;
+            reset();
+        }
+
+        //暫停時間
+        function stopTime() {
+            alert('時間暫停典籍確定再開始');
+        }
+
+        // 分割出方塊的間隔
+        function getCSS(level) {
+            let levelform = level - 1;
+            let mole = 485 - 15 * levelform;
+            let deno = 2 + levelform;
+            return mole / deno;
+        };
+        //重製色塊
+        function reset() {
+            scoreContent.innerHTML = score++; //分數計算
+            let side = getCSS(level);
+            //清空boxes
+            container.innerHTML = '';
+
+            //骰色子 取得0~3亂數 = random隨機小數
+            let randomNumber = Math.floor(Math.random() * (level + 1) * (level + 1));
+            // 0-255顏色亂數
+            let r = Math.floor(Math.random() * 256);
+            let g = Math.floor(Math.random() * 256);
+            let b = Math.floor(Math.random() * 256);
+
+            //生成box方塊&顏色
+            for (let i = 0; i < (level + 1) * (level + 1); i++) {
+                if (i == randomNumber) {
+                    container.innerHTML += `<div class="box" style="width: ${side}px;height:${side}px;background-color:rgb(${r},${g},${b});opacity:${colorUP};" onclick="reset()"></div>`;
+                } else {
+                    container.innerHTML += `<div class="box" style="width: ${side}px;height:${side}px;background-color:rgb(${r},${g},${b});" onclick="alert('不要亂猜')"></div>`;
+                }
+            };
+
+            //score除以3於數是多少 
+            //每三次點擊對 會增加難度
+            if (score % 4 == 0) {
+                if (level < 9) {
+                    level++;
+                    colorUP += 0.05;   //設定數值
+                }
+            };
+        }
+
+        reset();
+
+    </script>
+</body>
+
+</html>
